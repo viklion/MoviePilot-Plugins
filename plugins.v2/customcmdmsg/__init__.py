@@ -1,65 +1,74 @@
-import base64
-import json
-from typing import List, Tuple, Dict, Any
+from typing import Any, List, Dict, Tuple, Optional
 
-from app.helper.sites import SitesHelper
+import pytz
+from app.core.event import eventmanager, Event
 from app.log import logger
 from app.plugins import _PluginBase
+from app.schemas.types import EventType
 
-
-class CustomIndexer(_PluginBase):
+class CustomCmdMsg(_PluginBase):
     # 插件名称
-    plugin_name = "自定义索引站点"
+    plugin_name = "自定义命令回复消息"
     # 插件描述
-    plugin_desc = "修改或扩展内建索引器支持的站点。"
+    plugin_desc = "自定义tg命令、微信按钮回复消息。"
     # 插件图标
-    plugin_icon = "spider.png"
+    plugin_icon = "Wecom_A.png"
     # 插件版本
     plugin_version = "1.0"
     # 插件作者
-    plugin_author = "jxxghp"
+    plugin_author = "viklion"
     # 作者主页
-    author_url = "https://github.com/jxxghp"
+    author_url = "https://github.com/viklion"
     # 插件配置项ID前缀
-    plugin_config_prefix = "customindexer_"
+    plugin_config_prefix = "customcmdmsg_"
     # 加载顺序
-    plugin_order = 30
+    plugin_order = 0
     # 可使用的用户级别
     auth_level = 2
 
-    # 私有属性
-    _enabled = False
-    _confstr = ""
+    # 配置属性
+    _enabled: bool = False
+    _msg_text: str = ""
+
 
     def init_plugin(self, config: dict = None):
-
-        # 读取配置
+        # 配置
         if config:
-            self._enabled = config.get("enabled")
-            self._confstr = config.get("confstr") or ""
-            if self._enabled and self._confstr:
-                # 配置生效
-                indexers = self._confstr.split("\n")
-                for indexer in indexers:
-                    if not indexer:
-                        continue
-                    try:
-                        [domain, jsonstr] = indexer.split("|")
-                        if not domain or not jsonstr:
-                            continue
-                        jsonstr = base64.b64decode(jsonstr).decode('utf-8')
-                        SitesHelper().add_indexer(domain, json.loads(jsonstr))
-                    except Exception as err:
-                        logger.error(f"自定义索引站点配置错误：{err}")
-                        self.systemmessage.put(f"自定义索引站点配置错误：{err}", title="自定义索引站点")
-                        continue
+            self._enabled = config.get("enabled", False)
+            self._msg_text = config.get("msg_text", "回复的内容")
+
+
+            # 保存配置
+            self.__update_config()
+
+
+    def __update_config(self):
+        # 保存配置
+        self.update_config(
+            {
+                "enabled": self._enabled,
+                "msg_text": self._msg_text,
+            }
+        )
 
     def get_state(self) -> bool:
         return self._enabled
 
     @staticmethod
     def get_command() -> List[Dict[str, Any]]:
-        pass
+        """
+        定义远程控制命令
+        :return: 命令关键字、事件、描述、附带数据
+        """
+        return [{
+            "cmd": "/custom_cmdmsg",
+            "event": EventType.PluginAction,
+            "desc": "自定义回复",
+            "category": "",
+            "data": {
+                "action": "custom_cmdmsg"
+            }
+        }]
 
     def get_api(self) -> List[Dict[str, Any]]:
         pass
@@ -95,33 +104,42 @@ class CustomIndexer(_PluginBase):
                     },
                     {
                         'component': 'VRow',
-                        'content': [
-                            {
-                                'component': 'VCol',
-                                'props': {
-                                    'cols': 12
-                                },
-                                'content': [
-                                    {
-                                        'component': 'VTextarea',
-                                        'props': {
-                                            'model': 'confstr',
-                                            'label': '站点索引配置',
-                                            'rows': 10,
-                                            'placeholder': '一行一个站点，配置格式：域名|配置json的base64编码（utf-8）'
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        'component': 'VRow',
+                        'props': {
+                            'align': 'center'
+                        },
                         'content': [
                             {
                                 'component': 'VCol',
                                 'props': {
                                     'cols': 12,
+                                    'md': 12
+                                },
+                                'content': [
+                                    {
+                                        'component': 'VTextarea',
+                                        'props': {
+                                            'model': 'msg_text',
+                                            'label': '文本内容',
+                                            'placeholder': '自定义回复的内容',
+                                            "clearable": True,
+                                            'active': True,
+                                        }
+                                    }
+                                ]
+                            },
+                        ]
+                    },
+                    {
+                        'component': 'VRow',
+                        'props': {
+                            'align': 'center'
+                        },
+                        'content': [
+                            {
+                                'component': 'VCol',
+                                'props': {
+                                    'cols': 12,
+                                    'md': 12
                                 },
                                 'content': [
                                     {
@@ -129,25 +147,35 @@ class CustomIndexer(_PluginBase):
                                         'props': {
                                             'type': 'info',
                                             'variant': 'tonal',
-                                            'text': '域名只取后两段，如：www.baidu.com，只需填写baidu.com；索引配置Json需使用utf-8进行base64编码；如站点域名已被内建索引器支持，则会覆盖内建配置；索引配置的格式请参考README。'
+                                            'style': 'white-space: pre-line;',
+                                            'text': '注意：\n'
+                                                    '需配合『命令管理』插件实现添加微信按钮\n'
+                                                    '作者仓库：https://github.com/InfinityPacer/MoviePilot-Plugins/'
                                         }
                                     }
                                 ]
-                            }
+                            },
                         ]
                     }
                 ]
             }
         ], {
             "enabled": False,
-            "hosts": ""
+            "msg_text": "回复的内容",
         }
 
-    def get_page(self) -> List[dict]:
-        pass
-
-    def stop_service(self):
+    @eventmanager.register(EventType.PluginAction)
+    def custom_cmdmsg(self, event: Event = None):
         """
-        退出插件
+        收到命令，发送自定义回复消息
         """
-        pass
+        if event:
+            event_data = event.event_data
+            if not event_data or event_data.get("action") != "custom_cmdmsg":
+                return
+        
+        if event:
+            logger.info("收到命令，回复消息 ...")
+            self.post_message(channel=event.event_data.get("channel"),
+                              title=self._text,
+                              userid=event.event_data.get("user"))
