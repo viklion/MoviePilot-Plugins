@@ -164,6 +164,15 @@ class CustomCmdMsg(_PluginBase):
             "msg_text": "回复的内容",
         }
 
+    def get_page(self) -> List[dict]:
+        pass
+
+    def stop_service(self):
+        """
+        退出插件
+        """
+        pass
+
     @eventmanager.register(EventType.PluginAction)
     def custom_cmdmsg(self, event: Event = None):
         """
