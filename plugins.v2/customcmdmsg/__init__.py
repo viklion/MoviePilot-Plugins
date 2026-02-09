@@ -37,10 +37,8 @@ class CustomCmdMsg(_PluginBase):
             self._enabled = config.get("enabled", False)
             self._msg_text = config.get("msg_text", "回复的内容")
 
-
             # 保存配置
             self.__update_config()
-
 
     def __update_config(self):
         # 保存配置
@@ -174,7 +172,7 @@ class CustomCmdMsg(_PluginBase):
         pass
 
     @eventmanager.register(EventType.PluginAction)
-    def custom_cmdmsg(self, event: Event = None):
+    def custom_cmd_msg(self, event: Event = None):
         """
         收到命令，发送自定义回复消息
         """
@@ -182,9 +180,8 @@ class CustomCmdMsg(_PluginBase):
             event_data = event.event_data
             if not event_data or event_data.get("action") != "custom_cmdmsg":
                 return
-        
-        if event:
+
             logger.info("收到命令，回复消息 ...")
             self.post_message(channel=event.event_data.get("channel"),
-                              title=self._text,
+                              title=self._msg_text,
                               userid=event.event_data.get("user"))
