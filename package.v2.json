@@ -11,5 +11,17 @@
       "v1.1": "完善版本",
       "v1.0": "初始自用版本"
     }
+  },
+  "CustomAgentPrompt": {
+    "name": "自定义智能体提示词",
+    "description": "自定义修改智能体提示词。",
+    "labels": "智能体",
+    "version": "1.0",
+    "icon": "Bookstack_A.png",
+    "author": "viklion",
+    "level": 1,
+    "history": {
+      "v1.0": "初始自用版本"
+    }
   }
 }
