@@ -47,7 +47,6 @@ class CustomAgentPrompt(_PluginBase):
                     logger.info("已单次更新智能体提示词内容")
                     # 清空提示词缓存
                     prompt_manager.clear_cache()
-                    logger.info("已清空智能体提示词缓存")
                 else:
                     logger.warning("智能体提示词内容为空，本次未写入")
                 self._enabled = False
@@ -62,7 +61,6 @@ class CustomAgentPrompt(_PluginBase):
                     logger.info("已自动替换智能体提示词内容")
                     # 清空提示词缓存
                     prompt_manager.clear_cache()
-                    logger.info("已清空智能体提示词缓存")
                 else:
                     logger.warning("智能体提示词内容为空，未自动替换")
 
