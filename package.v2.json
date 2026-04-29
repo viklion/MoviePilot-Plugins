@@ -16,11 +16,12 @@
     "name": "自定义智能体提示词",
     "description": "自定义修改智能体提示词。",
     "labels": "智能体",
-    "version": "1.0",
+    "version": "1.1",
     "icon": "Bookstack_A.png",
     "author": "viklion",
     "level": 1,
     "history": {
+      "v1.1": "同步修改MP v2.10.8中智能体提示词文件名变更",
       "v1.0": "初始自用版本"
     }
   }

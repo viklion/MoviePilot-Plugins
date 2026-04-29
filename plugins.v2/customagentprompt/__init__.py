@@ -5,6 +5,7 @@ from app.log import logger
 from app.plugins import _PluginBase
 from app.agent.prompt import prompt_manager
 
+import os
 
 class CustomAgentPrompt(_PluginBase):
     # 插件名称
@@ -14,7 +15,7 @@ class CustomAgentPrompt(_PluginBase):
     # 插件图标
     plugin_icon = "Bookstack_A.png"
     # 插件版本
-    plugin_version = "1.0"
+    plugin_version = "1.1"
     # 插件作者
     plugin_author = "viklion"
     # 作者主页
@@ -31,7 +32,7 @@ class CustomAgentPrompt(_PluginBase):
     _auto_replace: bool = False
     _prompt_custom: Optional[str] = None
 
-    prompt_txt = settings.ROOT_PATH / "app"  / "agent" / "prompt" / "Agent Prompt.txt"
+    prompt_txt = settings.ROOT_PATH / "app"  / "agent" / "prompt" / "System Core Prompt.txt"
 
     def init_plugin(self, config: dict = None):
         # 配置
@@ -42,6 +43,9 @@ class CustomAgentPrompt(_PluginBase):
 
             # 单次写入
             if self._enabled:
+                if not os.path.exists(self.prompt_txt):
+                    logger.warning(f"{self.prompt_txt} 不存在，跳过执行替换")
+                    return
                 if self._prompt_custom:
                     self.prompt_txt.write_text(self._prompt_custom, encoding="utf-8")
                     logger.info("已单次更新智能体提示词内容")
@@ -56,6 +60,9 @@ class CustomAgentPrompt(_PluginBase):
 
             # 自动替换
             if self._auto_replace:
+                if not os.path.exists(self.prompt_txt):
+                    logger.warning(f"{self.prompt_txt} 不存在，跳过执行替换")
+                    return
                 if self._prompt_custom:
                     self.prompt_txt.write_text(self._prompt_custom, encoding="utf-8")
                     logger.info("已自动替换智能体提示词内容")
@@ -67,13 +74,17 @@ class CustomAgentPrompt(_PluginBase):
             self.__update_config()
 
     def __update_config(self):
+        try:
+            prompt_now = self.prompt_txt.read_text(encoding="utf-8")
+        except Exception as e:
+            prompt_now = f"ERROR: {str(e)}"
         # 保存配置
         self.update_config(
             {
                 "enabled": self._enabled,
                 "auto_replace": self._auto_replace,
                 "prompt_custom": self._prompt_custom,
-                "prompt_now": self.prompt_txt.read_text(encoding="utf-8"),
+                "prompt_now": prompt_now,
             }
         )
 
@@ -91,6 +102,10 @@ class CustomAgentPrompt(_PluginBase):
         """
         拼装插件配置页面，需要返回两块数据：1、页面配置；2、数据结构
         """
+        try:
+            prompt_txt = self.prompt_txt.read_text(encoding="utf-8")
+        except Exception as e:
+            prompt_txt = f"ERROR: {str(e)}"
         return [
             {
                 'component': 'VForm',
@@ -159,13 +174,13 @@ class CustomAgentPrompt(_PluginBase):
                                             {
                                                 'component': 'a',
                                                 'props': {
-                                                    'href': 'https://github.com/jxxghp/MoviePilot/blob/v2/app/agent/prompt/Agent%20Prompt.txt',
+                                                    'href': 'https://github.com/jxxghp/MoviePilot/blob/v2/app/agent/prompt/System%20Core%20Prompt.txt',
                                                     'target': '_blank'
                                                 },
                                                 'content': [
                                                     {
                                                         'component': 'u',
-                                                        'text': '[github]jxxghp/MoviePilot - Agent Prompt.txt'
+                                                        'text': '[github]jxxghp/MoviePilot - System Core Prompt.txt'
                                                     }
                                                 ]
                                             }
@@ -276,8 +291,8 @@ class CustomAgentPrompt(_PluginBase):
         ], {
             "enabled": False,
             "auto_replace": False,
-            "prompt_now" : self.prompt_txt.read_text(encoding="utf-8"),
-            "prompt_custom": self.prompt_txt.read_text(encoding="utf-8"),
+            "prompt_now" : prompt_txt,
+            "prompt_custom": prompt_txt,
         }
 
     def get_page(self) -> List[dict]:
