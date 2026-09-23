@@ -1,6 +1,6 @@
 {
-    "CustomCmdMsg": {
-        "name": "命令回复自定义消息",
+    "CustomCmdMsgV3": {
+        "name": "命令回复自定义消息v3",
         "description": "通过发送命令、微信按钮回复自定义消息。",
         "labels": "消息通知",
         "version": "3.0.0",

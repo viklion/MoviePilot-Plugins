@@ -6,11 +6,11 @@ from app.sdk.events import Event, eventmanager
 from app.sdk.logging import logger
 
 
-class CustomCmdMsg(_PluginBase):
+class CustomCmdMsgV3(_PluginBase):
     """命令回复自定义消息插件。"""
 
     # 插件名称
-    plugin_name = "命令回复自定义消息"
+    plugin_name = "命令回复自定义消息v3"
     # 插件描述
     plugin_desc = "通过发送命令、微信按钮回复自定义消息。"
     # 插件图标
@@ -22,7 +22,7 @@ class CustomCmdMsg(_PluginBase):
     # 作者主页
     author_url = "https://github.com/viklion"
     # 插件配置项 ID 前缀
-    plugin_config_prefix = "customcmdmsg_"
+    plugin_config_prefix = "customcmdmsgv3_"
     # 加载顺序
     plugin_order = 0
     # 可使用的用户级别
