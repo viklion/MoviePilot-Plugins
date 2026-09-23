@@ -7,6 +7,7 @@
     "icon": "Wecom_A.png",
     "author": "viklion",
     "level": 1,
+    "v3": false,
     "history": {
       "v1.1": "完善版本",
       "v1.0": "初始自用版本"
